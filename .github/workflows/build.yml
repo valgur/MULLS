@@ -1,0 +1,45 @@
+name: Build
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.dockerignore'
+      - 'assets/**'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.dockerignore'
+      - 'assets/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ubuntu-version: [ 16.04, 18.04, 20.04 ]
+        cxx-compiler: [ g++, clang++ ]
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag mulls:${{ matrix.ubuntu-version }}
+
+      - name: Run the Docker image
+        run: |
+          docker run \
+            -v "$(pwd)/demo_data":/mulls/demo_data \
+            --init \
+            --build-arg UBUNTU_VERSION=${{ matrix.ubuntu-version }} \
+            --build-arg CXX_COMPILER=${{ matrix.cxx-compiler }} \
+            --tag mulls:${{ matrix.ubuntu-version }}

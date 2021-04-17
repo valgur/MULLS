@@ -5,7 +5,7 @@ RUN apt-get update && \
       DEBIAN_FRONTEND=noninteractive apt-get -y install sudo python3-pip apt-utils build-essential git wget checkinstall \
           protobuf-compiler libprotobuf-dev libgoogle-glog-dev libgflags-dev \
           libeigen3-dev libboost-thread-dev libpcl-dev libproj-dev libatlas-base-dev libsuitesparse-dev \
-          libgeotiff-dev libopencv-dev libhdf5-serial-dev libopenmpi-dev openmpi-bin libhdf5-openmpi-dev
+          libgeotiff-dev libopencv-dev libhdf5-serial-dev libopenmpi-dev openmpi-bin libhdf5-openmpi-dev clang
 
 RUN useradd -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
 
@@ -32,14 +32,16 @@ RUN if [ $(lsb_release -cs) = xenial ]; then \
 ADD script/tools/install_dep_lib.sh script/tools/install_dep_lib.sh
 ADD python/requirements.txt python/requirements.txt
 
-RUN DEBIAN_FRONTEND=noninteractive bash script/tools/install_dep_lib.sh
+RUN DEBIAN_FRONTEND=noninteractive CXX=clang++ bash script/tools/install_dep_lib.sh
 
 ADD . .
+
+ARG CXX_COMPILER=g++
 
 RUN rm -rf build && \
     mkdir build && \
     cd build && \
-    cmake .. -DBUILD_WITH_SOPHUS=ON -DBUILD_WITH_PROJ4=ON -DBUILD_WITH_LIBLAS=ON && \
+    cmake .. -DBUILD_WITH_SOPHUS=ON -DBUILD_WITH_PROJ4=ON -DBUILD_WITH_LIBLAS=ON -DCMAKE_CXX_COMPILER=${CXX_COMPILER} && \
     make -j
 
 RUN apt-get install -y xvfb
