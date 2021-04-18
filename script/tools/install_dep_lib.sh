@@ -2,6 +2,9 @@
 # exit on errors
 set -e
 
+# can set the number of cores to build with, mostly to limit memory usage on CI
+NPROC=${NPROC:-$(nproc)}
+
 #install necessary (optional) dependent libs
 #test pass on Ubuntu 16.04
 echo "Make sure your OS is Ubuntu 16.04, or you have to install these dependence on your own"
@@ -47,7 +50,7 @@ echo "install [pcl] done"
 #   mkdir build
 #   cd build
 #   cmake ..
-#   make -j
+#   make -j $NPROC
 #   checkinstall-auto libg2o-dev 0.0.0
 # )
 # echo "install [g2o] done"
@@ -64,7 +67,7 @@ git clone -b 2.0.0 https://github.com/ceres-solver/ceres-solver.git
   mkdir build
   cd build
   cmake ..
-  make -j
+  make -j $NPROC
   checkinstall-auto libceres-dev 2.0.0
 )
 echo "install [ceres] done"
@@ -79,7 +82,7 @@ echo "install [ceres] done"
 #   mkdir build
 #   cd build
 #   cmake ..
-#   make -j
+#   make -j $NPROC
 #   checkinstall-auto libgtsam-dev 1.14.0
 # )
 # echo "install [gtsam] done"
@@ -91,7 +94,7 @@ git clone https://github.com/strasdat/Sophus.git
   mkdir build
   cd build
   cmake ..
-  make -j
+  make -j $NPROC
   checkinstall-auto libsophus-dev 0.0.0
 )
 echo "install [sophus] done"
@@ -106,7 +109,7 @@ git clone https://github.com/libLAS/libLAS.git
   mkdir build
   cd build
   cmake ..
-  make -j
+  make -j $NPROC
   sudo make install
   checkinstall-auto liblas-dev 0.0.0
 )
@@ -120,7 +123,7 @@ git clone https://github.com/MIT-SPARK/TEASER-plusplus.git
   mkdir build
   cd build
   cmake ..
-  make -j
+  make -j $NPROC
   checkinstall-auto libteaser-dev 0.0.0
   sudo ldconfig
 )

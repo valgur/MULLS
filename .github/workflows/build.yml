@@ -22,6 +22,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         ubuntu-version: [ 16.04, 18.04, 20.04 ]
         cxx-compiler: [ g++, clang++ ]
@@ -33,13 +34,17 @@ jobs:
       - uses: satackey/action-docker-layer-caching@v0.0.11
 
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag mulls:${{ matrix.ubuntu-version }}
+        run: |
+          docker build . \
+            --file Dockerfile \
+            --build-arg UBUNTU_VERSION=${{ matrix.ubuntu-version }} \
+            --build-arg CXX_COMPILER=${{ matrix.cxx-compiler }} \
+            --build-arg NPROC=1 \
+            --tag mulls:${{ matrix.ubuntu-version }}
 
       - name: Run the Docker image
         run: |
           docker run \
             -v "$(pwd)/demo_data":/mulls/demo_data \
             --init \
-            --build-arg UBUNTU_VERSION=${{ matrix.ubuntu-version }} \
-            --build-arg CXX_COMPILER=${{ matrix.cxx-compiler }} \
             --tag mulls:${{ matrix.ubuntu-version }}

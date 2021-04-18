@@ -32,7 +32,9 @@ RUN if [ $(lsb_release -cs) = xenial ]; then \
 ADD script/tools/install_dep_lib.sh script/tools/install_dep_lib.sh
 ADD python/requirements.txt python/requirements.txt
 
-RUN DEBIAN_FRONTEND=noninteractive CXX=clang++ bash script/tools/install_dep_lib.sh
+ARG NPROC=""
+
+RUN DEBIAN_FRONTEND=noninteractive NPROC=${NPROC} bash script/tools/install_dep_lib.sh
 
 ADD . .
 
