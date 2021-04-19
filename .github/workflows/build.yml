@@ -47,4 +47,4 @@ jobs:
           docker run \
             -v "$(pwd)/demo_data":/mulls/demo_data \
             --init \
-            --tag mulls:${{ matrix.ubuntu-version }}
+            -t mulls:${{ matrix.ubuntu-version }}
