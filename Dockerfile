@@ -1,5 +1,5 @@
 ARG UBUNTU_VERSION=20.04
-FROM ubuntu:${UBUNTU_VERSION}
+FROM ubuntu:${UBUNTU_VERSION} AS prereqs
 
 RUN apt-get update && \
       DEBIAN_FRONTEND=noninteractive apt-get -y install sudo python3-pip apt-utils build-essential git wget checkinstall \
@@ -42,15 +42,16 @@ ARG NPROC=""
 
 RUN DEBIAN_FRONTEND=noninteractive NPROC=${NPROC} bash script/tools/install_dep_lib.sh
 
+FROM prereqs
+
 ADD . .
 
 ARG CXX_COMPILER=g++
-
 RUN rm -rf build && \
     mkdir build && \
     cd build && \
     cmake .. -DBUILD_WITH_SOPHUS=ON -DBUILD_WITH_PROJ4=ON -DBUILD_WITH_LIBLAS=ON -DCMAKE_CXX_COMPILER=${CXX_COMPILER} && \
-    make -j
+    make -j${NPROC}
 
 RUN apt-get install -y xvfb
 RUN sed -i 's/real_time_viewer_on=1/real_time_viewer_on=0/g' script/run_mulls_slam.sh

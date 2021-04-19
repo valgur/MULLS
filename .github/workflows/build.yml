@@ -29,9 +29,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - uses: satackey/action-docker-layer-caching@v0.0.11
+      - uses: satackey/action-docker-layer-caching@v0.0.11
 
-      - name: Build the Docker image
+      - name: Build the prereqs
+        run: |
+          docker build . \
+            --file Dockerfile \
+            --build-arg UBUNTU_VERSION=${{ matrix.ubuntu-version }} \
+            --build-arg CXX_COMPILER=${{ matrix.cxx-compiler }} \
+            --build-arg NPROC=1 \
+            --target prereqs \
+            --tag mulls:${{ matrix.ubuntu-version }}
+
+      - name: Build MULLS
         run: |
           docker build . \
             --file Dockerfile \
@@ -40,7 +50,7 @@ jobs:
             --build-arg NPROC=1 \
             --tag mulls:${{ matrix.ubuntu-version }}
 
-      - name: Run the Docker image
+      - name: Run MULLS
         run: |
           docker run \
             -v "$(pwd)/demo_data":/mulls/demo_data \
