@@ -66,7 +66,7 @@ git clone -b 2.0.0 https://github.com/ceres-solver/ceres-solver.git
   cd ceres-solver
   mkdir build
   cd build
-  cmake ..
+  cmake .. -DBUILD_TESTING=OFF -DBUILD_EXAMPLES=OFF -DBUILD_BENCHMARKS=OFF
   make -j $NPROC
   checkinstall-auto libceres-dev 2.0.0
 )
@@ -93,7 +93,7 @@ git clone https://github.com/strasdat/Sophus.git
   cd Sophus
   mkdir build
   cd build
-  cmake ..
+  cmake .. -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF
   make -j $NPROC
   checkinstall-auto libsophus-dev 0.0.0
 )
@@ -108,7 +108,7 @@ git clone https://github.com/libLAS/libLAS.git
   cd libLAS
   mkdir build
   cd build
-  cmake ..
+  cmake .. -DWITH_TESTS=OFF
   make -j $NPROC
   sudo make install
   checkinstall-auto liblas-dev 0.0.0
@@ -122,7 +122,7 @@ git clone https://github.com/MIT-SPARK/TEASER-plusplus.git
   cd TEASER-plusplus
   mkdir build
   cd build
-  cmake ..
+  cmake .. -DBUILD_TESTS=OFF
   make -j $NPROC
   checkinstall-auto libteaser-dev 0.0.0
   sudo ldconfig
