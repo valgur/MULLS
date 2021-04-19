@@ -46,7 +46,7 @@ FROM prereqs
 
 ADD . .
 
-ARG CXX_COMPILER=g++
+ARG CXX_COMPILER=clang++
 RUN rm -rf build && \
     mkdir build && \
     cd build && \
