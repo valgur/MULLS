@@ -23,7 +23,8 @@ jobs:
       fail-fast: false
       matrix:
         ubuntu-version: [ 16.04, 18.04, 20.04 ]
-        cxx-compiler: [ g++, clang++ ]
+        # skipping g++ because it runs out of the available 7 GB of memory even when building with NPROC=1
+        cxx-compiler: [ clang++ ]
     env:
       DOCKER_IMAGE: mulls:${{ matrix.ubuntu-version }}
     steps:
