@@ -22,53 +22,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-#        ubuntu-version: [ 16.04, 18.04, 20.04 ]
-#        cxx-compiler: [ g++, clang++ ]
-        ubuntu-version: [ 20.04 ]
-        cxx-compiler: [ clang++ ]
+        ubuntu-version: [ 16.04, 18.04, 20.04 ]
+        cxx-compiler: [ g++, clang++ ]
     env:
       DOCKER_IMAGE: mulls:${{ matrix.ubuntu-version }}
-      BUILD_CACHE: /home/runner/.docker/buildkit
     steps:
       - uses: actions/checkout@v2
-
-      # caching logic is largely based on https://gist.github.com/UrsaDK/f90c9632997a70cfe2a6df2797731ac8
-      - uses: actions/cache@v2
-        with:
-          path: ${{ env.BUILD_CACHE }}
-          key: ${{ matrix.ubuntu-version }}-${{ hashFiles('Dockerfile', 'script/tools/install_dep_lib.sh', 'python/requirements.txt') }}
-
-      - name: Install the latest buildkit release
-        run: |
-          BUILDKIT_URL="$(curl -sL https://api.github.com/repos/moby/buildkit/releases \
-            | jq -r 'map(select(.name|startswith("v")))|sort_by(.name)[-1].assets[]|select(.name|endswith(".linux-amd64.tar.gz")).browser_download_url')"
-          curl -L "${BUILDKIT_URL}" | sudo tar -xz -C /usr/local
-
-      - name: Start buildkit daemon
-        run: |
-          sudo --non-interactive --shell <<END_SUDO
-            install -d -m 0750 -o root -g docker /run/buildkit
-            buildkitd &
-            while ! test -S /run/buildkit/buildkitd.sock; do sleep 0.1; done
-            chgrp docker /run/buildkit/buildkitd.sock
-          END_SUDO
-
-      - name: Build the prereqs docker image
-        run: |
-          buildctl build \
-            --frontend=dockerfile.v0 --local dockerfile=. --local context=. \
-            --export-cache type=local,dest=${BUILD_CACHE},mode=max \
-            --import-cache type=local,src=${BUILD_CACHE} \
-            --opt build-arg:BUILDKIT_INLINE_CACHE=1 \
-            --opt build-arg:UBUNTU_VERSION=${{ matrix.ubuntu-version }} \
-            --opt build-arg:CXX_COMPILER=${{ matrix.cxx-compiler }} \
-            --opt build-arg:NPROC=1 \
-            --opt target=prereqs \
-            --output type=docker,name=${DOCKER_IMAGE} | docker load
-          echo "Cache size: $(du -sh ${BUILD_CACHE})"
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
 
       - name: Build MULLS
         run: |
